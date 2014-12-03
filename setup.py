@@ -4,6 +4,7 @@ setup(name='common_crawl',
     version='0.1',
     install_requires = [
         'ujson',
+        'urlnorm',
         'warc',
         'awscli',
         'boto',
