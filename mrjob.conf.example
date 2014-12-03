@@ -52,6 +52,4 @@ runners:
     # 7. (optional): install any Python packages beyond what gets installed with setup.py
     #- /env/bin/pip install YOUR_PACKAGES
 
-    - mkdir /opt/src/common_crawl
-    - git clone https://github.com/openvenues/common_crawl /tmp/common_crawl
-    - python /tmp/common_crawl/setup.py install
+    - /env/bin/pip install git+https://github.com/openvenues/common_crawl.git
