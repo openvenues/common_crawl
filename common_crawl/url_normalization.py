@@ -8,7 +8,7 @@ def parse_file_ext_from_url(url):
     parsed = urlparse.urlparse(url)
     last_path = parsed.path.split('/', 1)[-1]
     if '.' in last_path:
-        extension = last_path.split('.')[-1].strip()
+        extension = last_path.strip().split('.')
         if extension:
             return extension
     return None
