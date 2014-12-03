@@ -1,0 +1,15 @@
+#!/bin/bash
+
+DEFAULT_OUTPUT_DIR=.
+output_dir=${2:-$DEFAULT_OUTPUT_DIR}
+
+if [ $# -lt 1 ]; then
+    input_dir=`sh latest_cc`
+else
+    input_dir=$1
+fi
+
+aws s3 cp --quiet $input_dir/warc.paths.gz $output_dir
+
+gunzip -f ${output_dir%%/}/warc.paths.gz
+echo ${output_dir%%/}/warc.paths

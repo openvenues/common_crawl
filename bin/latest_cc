@@ -1,0 +1,5 @@
+#!/bin/bash
+
+BASE=s3://aws-publicdatasets/common-crawl/crawl-data/
+EXT=`aws s3 ls $BASE | grep "CC-MAIN" | sort | tail -1 | awk {'print $2'}`
+echo "${BASE%%/}/${EXT%%/}"
