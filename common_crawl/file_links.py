@@ -36,7 +36,7 @@ class FindFilesJob(CommonCrawlJob):
             if not norm_href:
                 continue
             extension = parse_file_ext_from_url(norm_href)
-            if extension and extension[-1].lower() in self.valid_extensions or '.'.join(extension[-2:]).lower() in self.valid_extensions:
+            if extension and (extension[-1].lower() in self.valid_extensions or '.'.join(extension[-2:]).lower() in self.valid_extensions):
                 self.increment_counter('commoncrawl', 'links_found', 1)
                 yield norm_href, 1
 
