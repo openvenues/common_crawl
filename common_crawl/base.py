@@ -16,7 +16,7 @@ from mrjob.protocol import *
 from mrjob.job import *
 import ujson as json
 
-from mrjob.util import unarchive
+from mrjob.util import unarchive, log_to_stream
 
 from boto.s3.connection import Key, Bucket
 
@@ -64,10 +64,11 @@ class CommonCrawlJob(BaseJob):
             status_code = response.status
             if status_code != 200:
                 return
-            content_type = repsonse.getheader('Content-Type', '')
+            content_type = response.getheader('Content-Type', '')
             if 'text/html' not in content_type:
                 return
 
+            headers = response.getheaders()
             content = response.read(len(payload))
         except Exception:
             return
@@ -82,13 +83,16 @@ class CommonCrawlJob(BaseJob):
             yield item
 
     def parse_html(self, content):
-        return BeautifulSoup(doc, 'html.parser')
+        return BeautifulSoup(content, 'html.parser')
+
+    def filter(self, url, headers, content):
+        return True
 
     def process_content(self, url, headers, content):
         soup = None
         try:
             doc = UnicodeDammit(content, is_html=True)
-            if not doc.unicode_markup or not contains_microdata_regex.search(doc.unicode_markup):
+            if not doc.unicode_markup or not self.filter(url, headers, content):
                 return
 
             doc = doc.unicode_markup
@@ -117,8 +121,8 @@ class CommonCrawlJob(BaseJob):
                 bucket = conn.get_bucket('aws-publicdatasets')
                 key = Key(bucket, line)
                 key.get_contents_to_file(f)
-                f = open(filename)
-                records = warc.WARCFile(fileobj=gzip.open(f, 'rb'))
+                f.close()
+                records = warc.WARCFile(fileobj=gzip.open(filename, 'rb'))
                 break
             except Exception as e:
                 continue
