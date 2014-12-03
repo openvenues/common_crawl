@@ -1,27 +1,19 @@
-from common_crawl.base import CommonCrawlJob
+from common_crawl.base import *
+from common_crawl.url_normalization import *
 
 from bs4 import BeautifulSoup, SoupStrainer
 
 only_a_tags = SoupStrainer("a")
 
-def parse_file_ext_from_url(url):
-    parsed = urlparse.urlparse(url)
-    last_path = parsed.path.split('/', 1)[-1]
-    if '.' in last_path:
-        extension = last_path.split('.')[-1].strip()
-        if extension:
-            return extension
-    return None
-
 class FindFilesJob(CommonCrawlJob):
     def configure_options(self):
         super(FindFilesJob, self).configure_options()
-        self.add_passthrough_option('--extensions')
+        self.add_passthrough_option('--extensions', default='')
         self.add_passthrough_option('--pattern')
         self.add_passthrough_option('--insensitive', default=None)
 
     def mapper_init(self):
-        self.valid_extensions = set([s.strip() for s in self.options.extensions.split(',')])
+        self.valid_extensions = set([s.strip('. ') for s in self.options.extensions.split(',')])
         if self.options.pattern:
             regex_flags = re.I if self.options.insensitive is not None else None
             self.valid_extension_pattern = re.compile(self.options.pattern, regex_flags)
@@ -36,11 +28,13 @@ class FindFilesJob(CommonCrawlJob):
 
     def process_html(self, url, headers, soup):
         for tag in soup:
-            if 'href' not in tag.attrs:
+            if 'href' not in getattr(tag, 'attrs', {}):
                 continue                
             href = tag.attrs['href'].strip()
             # If the href is relative, joins with the base, otherwise just the real url
-            norm_href = urlparse.urljoin(url, href) 
+            norm_href = normalize_url(urlparse.urljoin(url, href))
+            if not norm_href:
+                continue
             extension = parse_file_ext_from_url(norm_href)
             if extension and extension.lower() in self.valid_extensions:
                 yield norm_href, 1
