@@ -29,8 +29,6 @@ from bs4 import UnicodeDammit, BeautifulSoup
 import cgi
 import cchardet
 
-from requests.models import Response
-
 from httplib import HTTPResponse
 from cStringIO import StringIO
 
