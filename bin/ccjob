@@ -2,8 +2,6 @@
 
 BASE_PATH="`dirname \"$0\".`"/..
 
-PYTHONPATH=../:$PYTHONPATH
-
 if [ $# -lt 1 ]; then
     echo "Usage: $0 job_name ..."
     exit

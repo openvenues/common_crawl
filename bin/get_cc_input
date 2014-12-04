@@ -1,10 +1,12 @@
 #!/bin/bash
 
+BASE_PATH="`dirname \"$0\".`"
+
 DEFAULT_OUTPUT_DIR=.
 output_dir=${2:-$DEFAULT_OUTPUT_DIR}
 
 if [ $# -lt 1 ]; then
-    input_dir=`sh latest_cc`
+    input_dir=`sh $BASE_PATH/latest_cc`
 else
     input_dir=$1
 fi
