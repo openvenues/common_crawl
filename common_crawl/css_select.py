@@ -19,7 +19,7 @@ class CSSSelectJob(CommonCrawlJob):
             # Fail early if no valid extensions are supplied
             raise ValueError("Must specify at least one selector")
 
-        self.selectors = self.options.selectors
+        self.selectors = self.options.selector
 
         if self.options.parse_only:
             self.strainer = SoupStrainer(self.options.selector)
