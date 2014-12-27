@@ -97,7 +97,7 @@ class CommonCrawlJob(BaseJob):
 
             doc = doc.unicode_markup
             soup = self.parse_html(content)
-            for item in self.process_html(url, headers, soup):
+            for item in self.process_html(url, headers, doc, soup):
                 yield item
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -106,7 +106,7 @@ class CommonCrawlJob(BaseJob):
                 soup.clear()            
 
     # Override this method
-    def process_html(self, url, headers, soup):
+    def process_html(self, url, headers, content, soup):
         return
 
     def mapper(self, _, line):

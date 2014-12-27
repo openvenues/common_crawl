@@ -22,9 +22,9 @@ class RegexLinksJob(CommonCrawlJob):
         self.match_func = self.link_pattern.search if not self.exact else self.link_pattern.match
 
     def parse_content(self, content):
-        return BeautifulSoup(content, parse_only=only_a_tags)
+        return BeautifulSoup(content, 'html.parser', parse_only=only_a_tags)
 
-    def process_html(self, url, headers, soup):
+    def process_html(self, url, headers, content, soup):
         for tag in soup:
             if 'href' not in tag.attrs:
                 continue                

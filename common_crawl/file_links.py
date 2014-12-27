@@ -24,9 +24,9 @@ class FindFilesJob(CommonCrawlJob):
             raise ValueError("Must specify at least one extension type")
 
     def parse_content(self, content):
-        return BeautifulSoup(content, parse_only=only_a_tags)
+        return BeautifulSoup(content, 'html.parser', parse_only=only_a_tags)
 
-    def process_html(self, url, headers, soup):
+    def process_html(self, url, headers, content, soup):
         for tag in soup:
             if 'href' not in getattr(tag, 'attrs', {}):
                 continue                
