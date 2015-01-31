@@ -26,6 +26,7 @@ import warc
 import re
 
 from bs4 import UnicodeDammit, BeautifulSoup
+
 import cgi
 import cchardet
 
@@ -46,13 +47,14 @@ class JsonProtocol(PickleProtocol):
     def _dumps(self, value):
         return json.dumps(value)
 
-class BaseJob(MRJob):
+
+class CommonCrawlJob(MRJob):
     INTERNAL_PROTOCOL = JSONProtocol
     OUTPUT_PROTOCOL = JSONProtocol
+    HADOOP_INPUT_FORMAT = 'org.apache.hadoop.mapred.lib.NLineInputFormat'
 
-class CommonCrawlJob(BaseJob):
     def jobconf(self):
-        return {'mapreduce.input.fileinputformat.split.maxsize': '1'}
+        return {'mapreduce.input.lineinputformat.linespermap': '1'}
 
     def process_record(self, record):
         content = None
@@ -89,29 +91,30 @@ class CommonCrawlJob(BaseJob):
         return True
 
     def process_content(self, url, headers, content):
-        soup = None
+        parsed = None
         try:
+           
             doc = UnicodeDammit(content, is_html=True)
-            if not doc.unicode_markup or not self.filter(url, headers, content):
+            if not doc.unicode_markup or not self.filter(url, headers, doc):
                 return
 
             doc = doc.unicode_markup
-            soup = self.parse_html(content)
-            for item in self.process_html(url, headers, doc, soup):
+            parsed = self.parse_html(doc)
+            for item in self.process_html(url, headers, doc, parsed):
                 yield item
         except Exception as e:
             logger.error(traceback.format_exc())
         finally:
-            if soup is not None:
-                soup.clear()            
+            if parsed is not None:
+                parsed.clear()            
 
     # Override this method
-    def process_html(self, url, headers, content, soup):
+    def process_html(self, url, headers, content, parsed):
         return
 
     def mapper(self, _, line):
-        line = line.rstrip()
-
+        line = line.rstrip().split('\t', 1)[-1]
+        
         filename = line.rsplit('/', 1)[-1]
         first_rec = None
         f = open(filename, 'w')
@@ -140,6 +143,7 @@ class CommonCrawlJob(BaseJob):
                 self.increment_counter('commoncrawl', 'processed_records', 1)
         except Exception:
             logger.error(traceback.format_exc())
+            self.increment_counter('errors', 'general', 1)
         finally:
             f.close()
             os.unlink(filename)
