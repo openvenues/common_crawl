@@ -73,6 +73,8 @@ class CommonCrawlJob(MRJob):
             headers = response.getheaders()
             content = response.read(len(payload))
         except Exception:
+            self.increment_counter('errors', 'process_record', 1)
+            logging.error('Error processing record: {}', traceback.format_exc())
             return
 
         if content is not None:
