@@ -98,6 +98,7 @@ class CommonCrawlJob(MRJob):
            
             doc = UnicodeDammit(content, is_html=True)
             if not doc.unicode_markup or not self.filter(url, headers, doc):
+                self.increment_counter('common_crawl', 'filter_not_matched', 1)
                 return
 
             doc = doc.unicode_markup
@@ -105,13 +106,15 @@ class CommonCrawlJob(MRJob):
             for item in self.process_html(url, headers, doc, parsed):
                 yield item
         except Exception as e:
+            self.increment_counter('errors', 'process_content', 1)
             logger.error(traceback.format_exc())
         finally:
             if parsed is not None:
-                parsed.clear()            
+                parsed.clear()
 
     # Override this method
     def process_html(self, url, headers, content, parsed):
+        logger.error('In base process_html: {}'.format(traceback.format_exc()))
         return
 
     def mapper(self, _, line):
