@@ -54,7 +54,8 @@ class CommonCrawlJob(MRJob):
     HADOOP_INPUT_FORMAT = 'org.apache.hadoop.mapred.lib.NLineInputFormat'
 
     def jobconf(self):
-        return {'mapreduce.input.lineinputformat.linespermap': '1'}
+        return {'mapreduce.input.lineinputformat.linespermap': '1',
+                'mapreduce.input.fileinputformat.split.maxsize': '1'}
 
     def process_record(self, record):
         content = None
