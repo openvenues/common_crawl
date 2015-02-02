@@ -97,7 +97,7 @@ class CommonCrawlJob(MRJob):
         try:
            
             doc = UnicodeDammit(content, is_html=True)
-            if not doc.unicode_markup or not self.filter(url, headers, doc):
+            if not doc.unicode_markup or not self.filter(url, headers, doc.unicode_markup):
                 self.increment_counter('common_crawl', 'filter_not_matched', 1)
                 return
 
