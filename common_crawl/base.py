@@ -51,7 +51,7 @@ class JsonProtocol(PickleProtocol):
 class CommonCrawlJob(MRJob):
     INTERNAL_PROTOCOL = JSONProtocol
     OUTPUT_PROTOCOL = JSONProtocol
-    HADOOP_INPUT_FORMAT = 'org.apache.hadoop.mapred.lib.NLineInputFormat'
+    HADOOP_INPUT_FORMAT = 'org.apache.hadoop.mapreduce.lib.input.NLineInputFormat'
 
     def jobconf(self):
         return {'mapreduce.input.lineinputformat.linespermap': '1',
